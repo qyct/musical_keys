@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Qwertica Keys - Play sounds with your QWERTY keyboard or click/tap the keys">
+    <title>Qwertica Keys</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="app-header">
+            <h1>Qwertica Keys</h1>
+        </div>
+
+        <!-- Recording Controls -->
+        <div class="controls-top">
+            <div class="recording-buttons">
+                <button id="recordBtn" class="record-btn">Record</button>
+                <button id="stopBtn" class="stop-btn" disabled>Stop</button>
+                <button id="playBtn" class="play-btn" disabled>Play</button>
+                <button id="saveBtn" class="save-btn" disabled>Save</button>
+                <label for="loadFile" class="load-btn">
+                    Load
+                    <input type="file" id="loadFile" accept=".json" style="display: none;">
+                </label>
+            </div>
+            <div class="recording-status" id="recordingStatus"></div>
+        </div>
+
+        <!-- Keys Container -->
+        <div class="piano-wrapper">
+            <div id="piano" class="piano">
+                <!-- Row Q -->
+                <div class="key-row">
+                    <div class="key white" data-note="60" data-key="q">
+                        <span class="key-label">Q</span>
+                    </div>
+                    <div class="key white" data-note="62" data-key="w">
+                        <span class="key-label">W</span>
+                    </div>
+                    <div class="key white" data-note="64" data-key="e">
+                        <span class="key-label">E</span>
+                    </div>
+                    <div class="key white" data-note="65" data-key="r">
+                        <span class="key-label">R</span>
+                    </div>
+                    <div class="key white" data-note="67" data-key="t">
+                        <span class="key-label">T</span>
+                    </div>
+                    <div class="key white" data-note="69" data-key="y">
+                        <span class="key-label">Y</span>
+                    </div>
+                    <div class="key white" data-note="71" data-key="u">
+                        <span class="key-label">U</span>
+                    </div>
+                    <div class="key white" data-note="72" data-key="i">
+                        <span class="key-label">I</span>
+                    </div>
+                    <div class="key white" data-note="74" data-key="o">
+                        <span class="key-label">O</span>
+                    </div>
+                    <div class="key white" data-note="76" data-key="p">
+                        <span class="key-label">P</span>
+                    </div>
+                </div>
+
+                <!-- Row A -->
+                <div class="key-row">
+                    <div class="key white" data-note="60" data-key="a">
+                        <span class="key-label">A</span>
+                    </div>
+                    <div class="key white" data-note="62" data-key="s">
+                        <span class="key-label">S</span>
+                    </div>
+                    <div class="key white" data-note="64" data-key="d">
+                        <span class="key-label">D</span>
+                    </div>
+                    <div class="key white" data-note="65" data-key="f">
+                        <span class="key-label">F</span>
+                    </div>
+                    <div class="key white" data-note="67" data-key="g">
+                        <span class="key-label">G</span>
+                    </div>
+                    <div class="key white" data-note="69" data-key="h">
+                        <span class="key-label">H</span>
+                    </div>
+                    <div class="key white" data-note="71" data-key="j">
+                        <span class="key-label">J</span>
+                    </div>
+                    <div class="key white" data-note="72" data-key="k">
+                        <span class="key-label">K</span>
+                    </div>
+                    <div class="key white" data-note="74" data-key="l">
+                        <span class="key-label">L</span>
+                    </div>
+                    <div class="key white" data-note="76" data-key=";">
+                        <span class="key-label">;</span>
+                    </div>
+                </div>
+
+                <!-- Row Z -->
+                <div class="key-row">
+                    <div class="key white" data-note="60" data-key="z">
+                        <span class="key-label">Z</span>
+                    </div>
+                    <div class="key white" data-note="62" data-key="x">
+                        <span class="key-label">X</span>
+                    </div>
+                    <div class="key white" data-note="64" data-key="c">
+                        <span class="key-label">C</span>
+                    </div>
+                    <div class="key white" data-note="65" data-key="v">
+                        <span class="key-label">V</span>
+                    </div>
+                    <div class="key white" data-note="67" data-key="b">
+                        <span class="key-label">B</span>
+                    </div>
+                    <div class="key white" data-note="69" data-key="n">
+                        <span class="key-label">N</span>
+                    </div>
+                    <div class="key white" data-note="71" data-key="m">
+                        <span class="key-label">M</span>
+                    </div>
+                    <div class="key white" data-note="72" data-key=",">
+                        <span class="key-label">,</span>
+                    </div>
+                    <div class="key white" data-note="74" data-key=".">
+                        <span class="key-label">.</span>
+                    </div>
+                    <div class="key white" data-note="76" data-key="/">
+                        <span class="key-label">/</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/audio-engine.js"></script>
+    <script src="js/input-handler.js"></script>
+    <script src="js/recording.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

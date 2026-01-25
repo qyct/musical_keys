@@ -1,0 +1,344 @@
+/**
+ * Qwertica Keys Styles
+ * Single-page application, no scrollbar, responsive design
+ */
+
+/* CSS Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #eee;
+}
+
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* App Header */
+.app-header {
+    text-align: center;
+    padding: 10px 0;
+    flex-shrink: 0;
+}
+
+.app-header h1 {
+    font-size: 2rem;
+    background: linear-gradient(45deg, #00d4ff, #7b2cbf);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Start Overlay (for mobile AudioContext initialization) */
+.start-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.3s ease;
+}
+
+.start-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.start-btn {
+    padding: 20px 40px;
+    font-size: 1.5rem;
+    background: linear-gradient(45deg, #00d4ff, #7b2cbf);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.start-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Top Controls - Recording */
+.controls-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    flex-shrink: 0;
+}
+
+.recording-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.recording-buttons button,
+.recording-buttons label {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.recording-status {
+    min-height: 20px;
+    color: #aaa;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.recording-status.recording {
+    color: #e63946;
+    font-weight: 500;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Keys Wrapper */
+.piano-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 10px 0;
+}
+
+/* Keys Container */
+.piano {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #2a2a2a;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Keyboard Rows */
+.key-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+/* Row positioning to match QWERTY layout */
+.key-row:nth-child(1) {
+    padding-left: 0;
+}
+
+.key-row:nth-child(2) {
+    padding-left: 20px;
+}
+
+.key-row:nth-child(3) {
+    padding-left: 40px;
+}
+
+/* Keys */
+.key {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(to bottom, #f0f0f0 0%, #d0d0d0 100%);
+    border: 1px solid #999;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.05s ease;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    position: relative;
+}
+
+.key:hover {
+    background: linear-gradient(to bottom, #fff 0%, #e0e0e0 100%);
+}
+
+.key.active {
+    background: linear-gradient(to bottom, #00d4ff 0%, #0099cc 100%);
+    transform: translateY(2px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Key Labels */
+.key-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Button Styles */
+.record-btn {
+    background: #e63946;
+    color: white;
+}
+
+.record-btn:hover:not(:disabled) {
+    background: #c1121f;
+    transform: scale(1.05);
+}
+
+.record-btn.recording {
+    animation: pulse 1s infinite;
+    background: #ff0000;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.stop-btn {
+    background: #457b9d;
+    color: white;
+}
+
+.stop-btn:hover:not(:disabled) {
+    background: #1d3557;
+    transform: scale(1.05);
+}
+
+.play-btn {
+    background: #2a9d8f;
+    color: white;
+}
+
+.play-btn:hover:not(:disabled) {
+    background: #264653;
+    transform: scale(1.05);
+}
+
+.play-btn.playing {
+    animation: pulse 1s infinite;
+    background: #20b2aa;
+}
+
+.save-btn {
+    background: #7b2cbf;
+    color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+    background: #5a189a;
+    transform: scale(1.05);
+}
+
+.load-btn {
+    background: #457b9d;
+    color: white;
+    display: inline-block;
+}
+
+.load-btn:hover {
+    background: #1d3557;
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .app-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .recording-buttons button,
+    .recording-buttons label {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .piano {
+        padding: 15px;
+        gap: 6px;
+    }
+
+    .key-row {
+        gap: 4px;
+    }
+
+    .key-row:nth-child(2) {
+        padding-left: 10px;
+    }
+
+    .key-row:nth-child(3) {
+        padding-left: 20px;
+    }
+
+    .key {
+        width: 35px;
+        height: 40px;
+    }
+
+    .key-label {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+
+    .app-header h1 {
+        font-size: 1.2rem;
+    }
+
+    .piano {
+        padding: 10px;
+        gap: 4px;
+    }
+
+    .key-row {
+        gap: 2px;
+    }
+
+    .key-row:nth-child(2) {
+        padding-left: 5px;
+    }
+
+    .key-row:nth-child(3) {
+        padding-left: 10px;
+    }
+
+    .key {
+        width: 28px;
+        height: 35px;
+    }
+
+    .key-label {
+        font-size: 10px;
+    }
+}
