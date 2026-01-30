@@ -3,19 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Qwertica Keys - Play sounds with your QWERTY keyboard or click/tap the keys">
-    <title>Qwertica Keys</title>
+    <meta name="description" content="Musical Keys - Play sounds with your QWERTY keyboard or click/tap the keys">
+    <title>Musical Keys</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="app-header">
-            <h1>Qwertica Keys</h1>
+    <!-- Header -->
+    <div class="app-header">
+        <h1 class="app-title">Musical Keys</h1>
+        <div class="speaker-icon" id="speakerIcon">
+            ♪
         </div>
+        <button id="menuBtn" class="menu-btn">☰</button>
+    </div>
 
-        <!-- Recording Controls -->
-        <div class="controls-top">
+    <!-- Menu Dropdown -->
+    <div id="menuDropdown" class="menu-dropdown hidden">
+        <div class="menu-content">
+            <button id="recordBtn" class="record-btn">Record</button>
+            <button id="stopBtn" class="stop-btn" disabled>Stop</button>
+            <button id="playBtn" class="play-btn" disabled>Play</button>
+            <button id="saveBtn" class="save-btn" disabled>Save</button>
+            <label for="loadFile" class="load-btn">
+                Load
+                <input type="file" id="loadFile" accept=".json" style="display: none;">
+            </label>
+        </div>
+        <div class="recording-status" id="recordingStatus"></div>
+    </div>
+
+    <div class="container">
+        <!-- Keys Container -->
+        <div class="piano-wrapper">
+            <div id="piano" class="piano">
+                <!-- Row 1: Number row -->
+                <div class="key-row">
+                    <div class="key inactive wide-left" data-key="`">
+                        <span class="key-label">`</span>
+                    </div>
+                    <div class="key inactive" data-key="1">
+                        <span class="key-label">1</span>
+                    </div>
+                    <div class="key inactive" data-key="2">
+                        <span class="key-label">2</span>
+                    </div>
+                    <div class="key inactive" data-key="3">
+                        <span class="key-label">3</span>
+                    </div>
+                    <div class="key inactive" data-key="4">
+                        <span class="key-label">4</span>
+                    </div>
+                    <div class="key inactive" data-key="5">
+                        <span class="key-label">5</span>
+                    </div>
+                    <div class="key inactive" data-key="6">
+                        <span class="key-label">6</span>
+                    </div>
+                    <div class="key inactive" data-key="7">
+                        <span class="key-label">7</span>
+                    </div>
+                    <div class="key inactive" data-key="8">
+                        <span class="key-label">8</span>
+                    </div>
+                    <div class="key inactive" data-key="9">
+                        <span class="key-label">9</span>
+                    </div>
+                    <div class="key inactive" data-key="0">
+                        <span class="key-label">0</span>
+                    </div>
+                    <div class="key inactive" data-key="-">
+                        <span class="key-label">-</span>
+                    </div>
+                    <div class="key inactive" data-key="=">
+                        <span class="key-label">=</span>
+                    </div>
+                    <div class="key inactive wide-right space-right" data-key="backspace">
+                        <span class="key-label">⌫</span>
+                    </div>
+                </div>
+
+                <!-- Row 2: Tab + QWERTY -->
+                <div class="key-row">
+                    <div class="key inactive wide-left space-left" data-key="tab">
+                        <span class="key-label">Tab</span>
+                    </div>
+                    <div class="key white" data-note="60" data-key="q">
+                        <span class="key-label">Q</span>
+                    </div>
+                    <div class="key white" data-note="62" data-key="w">
+                        <span class="key-label">W</span>
+                    </div>
+                    <div class="key white" data-note="64" data-key="e">
+                        <span class="key-label">E</span>
+                    </div>
+                    <div class="key white" data-note="65" data-key="r">
+                        <span class="key-label">R</span>
+                    </div>
+                    <div class="key white" data-note="67" data-key="t">
+                        <span class="key-label">T</span>
+                    </div>
+                    <div class="key white" data-note="69" data-key="y">
+                        <span class="key-label">Y</span>
+                    </div>
+                    <div class="key white" data-note="71" data-key="u">
+                        <span class="key-label">U</span>
+                    </div>
+                    <div class="key white" data-note="72" data-key="i">
+                        <span class="key-label">I</span>
+                    </div>
+                    <div class="key white" data-note="74" data-key="o">
+                        <span class="key-label">O</span>
+                    </div>
+                    <div class="key white" data-note="76" data-key="p">
+                        <span class="key-label">P</span>
+                    </div>
+                    <div class="key inactive" data-key="[">
+                        <span class="key-label">[</span>
+                    </div>
+                    <div class="key inactive" data-key="]">
+                        <span class="key-label">]</span>
+                    </div>
+                    <div class="key inactive wide-right space-right" data-key="\">
+                        <span class="key-label">\</span>
+                    </div>
+                </div>
+
+                <!-- Row 3: Caps + ASDF -->
+                <div class="key-row">
+                    <div class="key inactive wide-left space-left" data-key="caps">
+                        <span class="key-label">Caps</span>
+                    </div>
+                    <div class="key white" data-note="60" data-key="a">
+                        <span class="key-label">A</span>
+                    </div>
+                    <div class="key white" data-note="62" data-key="s">
+                        <span class="key-label">S</span>
+                    </div>
+                    <div class="key white" data-note="64" data-key="d">
+                        <span class="key-label">D</span>
+                    </div>
+                    <div class="key white" data-note="65" data-key="f">
+                        <span class="key-label">F</span>
+                    </div>
+                    <div class="key white" data-note="67" data-key="g">
+                        <span class="key-label">G</span>
+                    </div>
+                    <div class="key white" data-note="69" data-key="h">
+                        <span class="key-label">H</span>
+                    </div>
+                    <div class="key white" data-note="71" data-key="j">
+                        <span class="key-label">J</span>
+                    </div>
+                    <div class="key white" data-note="72" data-key="k">
+                        <span class="key-label">K</span>
+                    </div>
+                    <div class="key white" data-note="74" data-key="l">
+                        <span class="key-label">L</span>
+                    </div>
+                    <div class="key white" data-note="76" data-key=";">
+                        <span class="key-label">;</span>
+                    </div>
+                    <div class="key inactive" data-key="'">
+                        <span class="key-label">'</span>
+                    </div>
+                    <div class="key inactive wide-right space-right" data-key="enter">
+                        <span class="key-label">Enter</span>
+                    </div>
+                </div>
+
+                <!-- Row 4: Shift + ZXCV -->
+                <div class="key-row">
+                    <div class="key inactive wide-left space-left-wide" data-key="shift-l">
+                        <span class="key-label">Shift</span>
+                    </div>
+                    <div class="key white" data-note="60" data-key="z">
+                        <span class="key-label">Z</span>
+                    </div>
+                    <div class="key white" data-note="62" data-key="x">
+                        <span class="key-label">X</span>
+                    </div>
+                    <div class="key white" data-note="64" data-key="c">
+                        <span class="key-label">C</span>
+                    </div>
+                    <div class="key white" data-note="65" data-key="v">
+                        <span class="key-label">V</span>
+                    </div>
+                    <div class="key white" data-note="67" data-key="b">
+                        <span class="key-label">B</span>
+                    </div>
+                    <div class="key white" data-note="69" data-key="n">
+                        <span class="key-label">N</span>
+                    </div>
+                    <div class="key white" data-note="71" data-key="m">
+                        <span class="key-label">M</span>
+                    </div>
+                    <div class="key white" data-note="72" data-key=",">
+                        <span class="key-label">,</span>
+                    </div>
+                    <div class="key white" data-note="74" data-key=".">
+                        <span class="key-label">.</span>
+                    </div>
+                    <div class="key white" data-note="77" data-key="/">
+                        <span class="key-label">/</span>
+                    </div>
+                    <div class="key inactive wide-right space-right-wide" data-key="shift-r">
+                        <span class="key-label">Shift</span>
+                    </div>
+                </div>
+
+                <!-- Row 5: Ctrl/Alt/Space -->
+                <div class="key-row">
+                    <div class="key inactive wide-left space-left-small" data-key="ctrl-l">
+                        <span class="key-label">Ctrl</span>
+                    </div>
+                    <div class="key inactive" data-key="meta-l">
+                        <span class="key-label">⌘</span>
+                    </div>
+                    <div class="key inactive" data-key="alt-l">
+                        <span class="key-label">Alt</span>
+                    </div>
+                    <div class="key spacebar" data-key="space">
+                        <span class="key-label musical">♪ Musical Keys ♪</span>
+                    </div>
+                    <div class="key inactive" data-key="alt-r">
+                        <span class="key-label">Alt</span>
+                    </div>
+                    <div class="key inactive" data-key="meta-r">
+                        <span class="key-label">⌘</span>
+                    </div>
+                    <div class="key inactive wide-right space-right-small" data-key="ctrl-r">
+                        <span class="key-label">Ctrl</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
             <div class="recording-buttons">
                 <button id="recordBtn" class="record-btn">Record</button>
                 <button id="stopBtn" class="stop-btn" disabled>Stop</button>
@@ -32,7 +254,7 @@
         <!-- Keys Container -->
         <div class="piano-wrapper">
             <div id="piano" class="piano">
-                <!-- Row Q -->
+                <!-- Row 1: QWERTYUIOP -->
                 <div class="key-row">
                     <div class="key white" data-note="60" data-key="q">
                         <span class="key-label">Q</span>
@@ -66,7 +288,7 @@
                     </div>
                 </div>
 
-                <!-- Row A -->
+                <!-- Row 2: ASDFGHJKL; -->
                 <div class="key-row">
                     <div class="key white" data-note="60" data-key="a">
                         <span class="key-label">A</span>
@@ -96,11 +318,12 @@
                         <span class="key-label">L</span>
                     </div>
                     <div class="key white" data-note="76" data-key=";">
+">
                         <span class="key-label">;</span>
                     </div>
                 </div>
 
-                <!-- Row Z -->
+                <!-- Row 3: ZXCVBNM,/ -->
                 <div class="key-row">
                     <div class="key white" data-note="60" data-key="z">
                         <span class="key-label">Z</span>
@@ -129,7 +352,7 @@
                     <div class="key white" data-note="74" data-key=".">
                         <span class="key-label">.</span>
                     </div>
-                    <div class="key white" data-note="76" data-key="/">
+                    <div class="key white" data-note="77" data-key="/">
                         <span class="key-label">/</span>
                     </div>
                 </div>

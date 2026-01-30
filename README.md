@@ -1,44 +1,52 @@
-# Qwertica Keys
+# Musical Keys
 
-A single-page web application that transforms your QWERTY keyboard into a playable musical instrument. Press keyboard keys or click/tap the on-screen keys to create sounds. Features polyphonic Web Audio API synthesis, recording/playback functionality, and save/load capabilities.
+A single-page web application that transforms your QWERTY keyboard into a playable musical instrument. Features viewport-based scaling for consistent appearance across all devices, professional Web Audio API synthesis with stuck-note prevention, and visual feedback.
 
-![Qwertica Keys](https://img.shields.io/badge/version-1.0-blue) ![Web Audio API](https://img.shields.io/badge/Web%20Audio%20API-supported-green)
+![Musical Keys](https://img.shields.io/badge/version-2.0-blue) ![Web Audio API](https://img.shields.io/badge/Web%20Audio%20API-supported-green)
 
 ## Features
 
+- **Full Keyboard Layout**: Visual representation of complete QWERTY keyboard with greyed-out non-musical keys
+- **Viewport-Based Scaling**: Keyboard scales proportionally with window size (like GLSL shaders)
+- **Solid Audio Engine**: Professional Web Audio API synthesis with stuck-note prevention
+- **Speaker Icon**: Animated visual indicator when sound is playing
 - **Dual Input System**: Play with QWERTY keyboard or click/tap on-screen keys
-- **Ergonomic Two-Handed Layout**: Designed for natural hand positioning
-- **Polyphonic Synthesis**: Play multiple notes simultaneously
+- **Polyphonic Synthesis**: Play multiple notes simultaneously without issues
 - **Recording & Playback**: Record your performances and play them back
 - **Save/Load Recordings**: Export and import recordings as JSON files
-- **Single Page Application**: No scrolling, everything fits on one screen
-- **No External Dependencies**: Pure vanilla JavaScript, HTML, and CSS
+- **Elegant Header**: Integrated menu button in header with speaker icon
+- **Fancy Spacebar**: Features "Musical Keys" in grey
+- **Single Page Application**: No scrolling, everything fits on screen
 
 ## Keyboard Layout
 
-The application uses an ergonomic two-handed layout designed for comfortable typing:
+The application uses a standard QWERTY keyboard layout with 30 working musical keys:
 
-### Left Hand
+### Working Musical Keys
 
-| Finger | Keys |
-|--------|------|
-| Little | Q, A, Z |
-| Ring | W, S, X |
-| Middle | E, D, C |
-| Index | R, F, V, T, G, B |
+**Row 1**: ` 1 2 3 4 5 6 7 8 9 0 - = ⌫` (inactive, greyed out)
+**Row 2**: Tab Q W E R T Y U I O P [ ] \ (Tab, [, ], \ inactive)
+**Row 3**: Caps A S D F G H J K L ; ' Enter (Caps, ', Enter inactive)
+**Row 4**: Shift Z X C V B N M , . / Shift (Shift keys inactive)
+**Row 5**: Ctrl ⌘ Alt **Space** Alt ⌘ Ctrl (all inactive except Space shows text)
 
-**Left hand keys**: Q W E R T A S D F G Z X C V B
+**Active Musical Keys**: Q W E R T Y U I O P A S D F G H J K L ; Z X C V B N M , . /
 
-### Right Hand
+### Note Mapping
 
-| Finger | Keys |
-|--------|------|
-| Index | Y, H, N, U, J, M |
-| Middle | I, K, , |
-| Ring | O, L, . |
-| Little | P, ;, / |
-
-**Right hand keys**: Y U I O P H J K L N M , . ; /
+| Key | MIDI Note |
+|-----|-----------|
+| Q, A, Z | 60 (C4) |
+| W, S, X | 62 (D4) |
+| E, D, C | 64 (E4) |
+| R, F, V | 65 (F4) |
+| T, G, B | 67 (G4) |
+| Y, H, N | 69 (A4) |
+| U, J, M | 71 (B4) |
+| I, K, , | 72 (C5) |
+| O, L, . | 74 (D5) |
+| P, ; | 76 (E5) |
+| / | 77 (F5) |
 
 ## Installation & Usage
 
@@ -60,28 +68,30 @@ The application uses an ergonomic two-handed layout designed for comfortable typ
 ### Using the Application
 
 **Keyboard Input:**
-- Press the mapped keys to play sounds
+- Press the mapped keys (QWERTYUIOPASDFGHJKL;ZXCVBNM,./) to play sounds
 - Hold keys for sustained notes
 - Release keys to stop notes
 - Multiple keys can be pressed simultaneously
+- Speaker icon animates when notes are playing
 
 **Mouse/Touch Input:**
-- Click or tap on-screen keys
-- Drag across keys for glissando effect
+- Click or tap on-screen keys (white keys only)
+- Greyed-out keys are non-functional
+- Keys highlight in cyan when pressed
 
-**Recording:**
-1. Click "Record" to start capturing your performance
-2. Play some notes
-3. Click "Stop" to finish recording
-4. Click "Play" to hear your recording
-5. Click "Save" to download as JSON file
-6. Use "Load" to import a previously saved recording
+**Menu (☰ Button):**
+1. Click the menu button in header to access controls
+2. **Record**: Start capturing your performance
+3. **Stop**: Finish recording
+4. **Play**: Hear your recording
+5. **Save**: Download as JSON file
+6. **Load**: Import a previously saved recording
 
 ## Technical Details
 
 ### Audio Architecture
 
-The application uses the Web Audio API for sound synthesis:
+The application uses the **Web Audio API** for robust, stuck-note-free synthesis:
 
 ```
 AudioContext
@@ -92,9 +102,24 @@ Per Note:
     Oscillator (triangle) → NoteGain (ADSR) → MasterGain
 ```
 
+Each note creates a unique oscillator instance with proper cleanup:
+```javascript
+const activeNotes = new Map(); // midi -> { osc, noteGain, startTime }
+```
+
+### Stuck Note Prevention
+
+The audio engine implements multiple safeguards:
+
+1. **Duplicate Note Prevention**: Checks if note is already playing before starting
+2. **Proper Cleanup**: Oscillators are disconnected after release phase
+3. **Emergency Stop**: `stopAllNotes()` method forces cleanup of all active notes
+4. **Tab Hidden Handling**: Automatically stops all notes when tab is hidden
+5. **Page Unload Handling**: Cleanup on browser close/navigation
+
 ### Waveform
 
-Uses triangle waveform exclusively for a balanced, mellow tone.
+Uses triangle waveform for a balanced, mellow tone with rich harmonics.
 
 ### Frequency Calculation
 
@@ -107,29 +132,33 @@ frequency = 440 × 2^((MIDI - 69) / 12)
 
 Each note uses an ADSR (Attack, Decay, Sustain, Release) envelope:
 - **Attack**: 10ms linear ramp to full velocity
-- **Decay**: 290ms exponential drop to 70% sustain level
+- **Decay**: 300ms exponential drop to 70% sustain level
 - **Sustain**: Maintained while key is held
-- **Release**: 300ms exponential fade when key is released
+- **Release**: 100ms exponential fade when key is released
 
 ### Polyphony
 
-Unlimited polyphony through a Map-based tracking system:
-```javascript
-const activeNotes = new Map(); // midi -> { osc, noteGain }
-```
+Unlimited polyphony through a Map-based tracking system with active note counting.
+
+### Viewport Scaling
+
+Keyboard uses viewport-based units (vw, vh) for consistent appearance:
+- Key size: `5vw × 5vh` with min/max constraints
+- Responsive scaling maintains proportions across all devices
+- Similar to GLSL shader coordinate systems
 
 ## File Structure
 
 ```
-qwertica_piano/
-├── index.html           # Main HTML structure and UI
+musical_keys/
+├── index.html           # Main HTML structure and keyboard UI
 ├── css/
-│   └── style.css        # Single-page layout and styling
+│   └── style.css        # Viewport-based scaling and styling
 ├── js/
-│   ├── audio-engine.js  # Web Audio API, oscillators, ADSR
+│   ├── audio-engine.js  # Web Audio API synthesis with stuck-note prevention
 │   ├── input-handler.js # Keyboard mapping and dual input
 │   ├── recording.js     # Event recording and playback
-│   └── main.js          # App initialization and UI wiring
+│   └── main.js          # App initialization and menu wiring
 └── README.md            # Documentation
 ```
 
@@ -151,8 +180,8 @@ Recordings are saved as JSON files with the following structure:
 
 ```json
 {
-  "version": "1.0",
-  "date": "2025-01-25T12:34:56.789Z",
+  "version": "2.0",
+  "date": "2025-01-30T12:34:56.789Z",
   "duration": 5432.100,
   "eventCount": 42,
   "events": [
@@ -172,85 +201,87 @@ Recordings are saved as JSON files with the following structure:
 }
 ```
 
+## Visual Design
+
+### Header
+- Fixed position at top (60px height)
+- Speaker icon with cyan glow animation when sound plays
+- "Musical Keys" title with gradient text
+- Menu button (☰) on the right side
+
+### Key Styling
+- **Active keys**: White gradient (#f0f0f0 → #d0d0d0)
+- **Inactive keys**: Grey gradient (#808080 → #606060) with 50% opacity
+- **Pressed keys**: Cyan gradient (#00d4ff → #0099cc)
+- **Key labels**: Viewport-based sizing with clamp()
+- **Key size**: 5vw × 5vh (min 40px, max 90px)
+
+### Spacebar
+- Features "Musical Keys" in grey (#888)
+- Spans most of the bottom row width
+- Clickable but doesn't produce sound (visual only)
+
 ## Verification Checklist
 
-Use this checklist to verify the application works correctly:
-
 ### File Structure ✅
-- [ ] index.html exists and is properly formatted
-- [ ] css/style.css contains all styles
-- [ ] js/audio-engine.js implements Web Audio API
+- [ ] index.html exists with full keyboard layout
+- [ ] css/style.css uses viewport-based scaling
+- [ ] js/audio-engine.js uses Web Audio API
 - [ ] js/input-handler.js maps keyboard to MIDI notes
 - [ ] js/recording.js handles recording/playback
 - [ ] js/main.js initializes the application
 
+### Audio Engine
+- [ ] Notes play without sticking
+- [ ] Multiple keys can be pressed rapidly
+- [ ] All notes stop when tab is hidden
+- [ ] Emergency stop works (stopAllNotes)
+- [ ] Speaker icon animates when sound plays
+
 ### Keyboard Mapping
-- [ ] Q W E R T play different notes
-- [ ] A S D F G play different notes
-- [ ] Z X C V B play different notes
-- [ ] Y U I O P play different notes
-- [ ] H J K L play different notes
-- [ ] N M , . ; / play different notes
-
-### Functional Tests
-- [ ] All keys produce sound when pressed
+- [ ] All 30 musical keys produce sound when pressed
+- [ ] Non-musical keys are greyed out and non-functional
 - [ ] Multiple notes can play simultaneously (chords)
-- [ ] Notes stop when key is released
-- [ ] Visual feedback appears on keyboard press
+- [ ] Visual feedback appears on key press
 - [ ] Visual feedback appears on mouse/touch press
-- [ ] Key repeat is prevented (holding key doesn't retrigger)
 
-### Recording Tests
-- [ ] Record button starts recording
-- [ ] Note events are captured with timestamps
-- [ ] Stop button finalizes recording
-- [ ] Play button reproduces recording accurately
-- [ ] Playback timing matches original performance
-- [ ] Visual feedback during playback works
-- [ ] Save button downloads JSON file
-- [ ] JSON file contains valid event data
-- [ ] Load button imports JSON file
-- [ ] Loaded recording plays correctly
+### Menu Functionality
+- [ ] Menu button (☰) is in header
+- [ ] Clicking menu button shows dropdown
+- [ ] All recording controls work from menu
+- [ ] Recording status displays in menu
 
 ### Responsive Design
 - [ ] Desktop layout displays correctly
 - [ ] Tablet layout (768px) adapts properly
 - [ ] Mobile layout (480px) adapts properly
+- [ ] Keyboard maintains proportions across screen sizes
 - [ ] No scrollbar appears (single-page app)
 - [ ] Keys are tappable on mobile
-
-### Browser Compatibility
-- [ ] Chrome: All features work
-- [ ] Firefox: All features work
-- [ ] Safari: All features work
-- [ ] Edge: All features work
-
-### Audio Quality
-- [ ] Triangle waveform produces smooth tone
-- [ ] No audio glitches when playing fast passages
-- [ ] Full volume output is maintained
-- [ ] ADSR envelope sounds natural
-
-### Performance
-- [ ] No memory leaks after extended use
-- [ ] Page loads quickly (< 2 seconds)
-- [ ] No console errors or warnings
-- [ ] Cleanup works on page unload
 
 ## Testing Instructions
 
 1. Open index.html in multiple browsers
-2. Test each keyboard key plays a unique note
-3. Test clicking/tapping on-screen keys
-4. Test playing chords (multiple keys simultaneously)
-5. Record a simple melody, then play it back
-6. Save recording, reload page, load and play recording
-7. Test on mobile device (or mobile emulation)
-8. Check browser console for errors
-9. Verify responsive design at different screen sizes
-10. Confirm no scrollbar appears (everything fits on screen)
+2. Test each musical key plays a unique note
+3. Verify non-musical keys are greyed out
+4. Test clicking/tapping on-screen keys
+5. Test playing chords (multiple keys simultaneously)
+6. Rapidly press and release keys to test stuck-note prevention
+7. Test menu button opens/closes dropdown
+8. Record a simple melody, then play it back
+9. Save recording, reload page, load and play recording
+10. Verify spacebar displays "Musical Keys"
+11. Test on mobile device (or mobile emulation)
+12. Check browser console for errors
+13. Verify speaker icon animates when sound plays
+14. Test window resize - keyboard should scale proportionally
 
 ## Troubleshooting
+
+### Stuck Notes
+- If notes get stuck, refresh the page
+- Check browser console for error messages
+- Ensure you're running a modern browser with Web Audio API support
 
 ### No Sound
 - Make sure you've pressed a key or clicked something (audio initializes on first interaction)
@@ -261,23 +292,20 @@ Use this checklist to verify the application works correctly:
 - Verify focus is on the page (click anywhere)
 - Check browser console for JavaScript errors
 - Try refreshing the page
-
-### Recording Issues
-- Ensure events were recorded (check event count)
-- Verify JSON file structure if loading
-- Check browser console for errors
+- Ensure you're pressing musical keys (QWERTYUIOPASDFGHJKL;ZXCVBNM,/)
 
 ### Layout Issues
 - Ensure browser window is maximized
 - Check that zoom level is 100%
 - Try resizing the browser window
+- Keyboard should scale proportionally
 
 ## Performance Tips
 
 - For best performance, use Chrome or Firefox
 - Close unnecessary browser tabs
 - Use a wired connection on mobile for lower latency
-- Reduce the number of simultaneous notes on slower devices
+- Web Audio API provides better timing accuracy than alternatives
 
 ## License
 
@@ -285,8 +313,8 @@ This project is open source and available under the MIT License.
 
 ## Credits
 
-Built with vanilla JavaScript using the Web Audio API. No external libraries or frameworks.
+Built with vanilla JavaScript using the **Web Audio API** for professional, stuck-note-free audio synthesis.
 
 ---
 
-**Enjoy playing Qwertica Keys! ⌨️**
+**Enjoy playing Musical Keys! 🎹**

@@ -92,8 +92,8 @@ class InputHandler {
         // Play note
         this.audioEngine.playNote(midi, 0.5);
 
-        // Visual feedback
-        this.activateKey(midi);
+        // Visual feedback - activate by key character
+        this.activateKeyByKey(key);
 
         // Prevent default browser behavior
         event.preventDefault();
@@ -122,8 +122,8 @@ class InputHandler {
         // Stop note
         this.audioEngine.stopNote(midi);
 
-        // Remove visual feedback
-        this.deactivateKey(midi);
+        // Remove visual feedback - deactivate by key character
+        this.deactivateKeyByKey(key);
 
         // Prevent default browser behavior
         event.preventDefault();
@@ -138,8 +138,13 @@ class InputHandler {
     setupMouseTouchHandlers() {
         const keys = document.querySelectorAll('.key');
 
-        keys.forEach(key => {
+        keys.forEach((key) => {
             const midi = parseInt(key.dataset.note);
+
+            // Skip inactive keys (no MIDI note assigned)
+            if (!midi || isNaN(midi)) {
+                return;
+            }
 
             // Mouse events
             key.addEventListener('mousedown', (event) => {
@@ -181,8 +186,8 @@ class InputHandler {
         // Play note
         this.audioEngine.playNote(midi, 0.5);
 
-        // Visual feedback
-        this.activateKey(midi);
+        // Visual feedback - add active class directly to the element
+        keyElement.classList.add('active');
 
         // Notify recorder
         this.notifyRecorder('noteOn', midi, 0.5);
@@ -200,28 +205,50 @@ class InputHandler {
         // Stop note
         this.audioEngine.stopNote(midi);
 
-        // Remove visual feedback
-        this.deactivateKey(midi);
+        // Remove visual feedback - remove active class directly
+        keyElement.classList.remove('active');
 
         // Notify recorder
         this.notifyRecorder('noteOff', midi, 0);
     }
 
     /**
-     * Activate visual feedback for a key
+     * Activate visual feedback for a key (by MIDI note)
      */
     activateKey(midi) {
-        const keyElement = this.midiToKeyElement.get(midi);
+        // Find all keys with this MIDI note and activate them
+        const keys = document.querySelectorAll(`.key[data-note="${midi}"]`);
+        keys.forEach(key => {
+            key.classList.add('active');
+        });
+    }
+
+    /**
+     * Deactivate visual feedback for a key (by MIDI note)
+     */
+    deactivateKey(midi) {
+        // Find all keys with this MIDI note and deactivate them
+        const keys = document.querySelectorAll(`.key[data-note="${midi}"]`);
+        keys.forEach(key => {
+            key.classList.remove('active');
+        });
+    }
+
+    /**
+     * Activate visual feedback for a key (by key character)
+     */
+    activateKeyByKey(keyChar) {
+        const keyElement = document.querySelector(`.key[data-key="${keyChar}"]`);
         if (keyElement) {
             keyElement.classList.add('active');
         }
     }
 
     /**
-     * Deactivate visual feedback for a key
+     * Deactivate visual feedback for a key (by key character)
      */
-    deactivateKey(midi) {
-        const keyElement = this.midiToKeyElement.get(midi);
+    deactivateKeyByKey(keyChar) {
+        const keyElement = document.querySelector(`.key[data-key="${keyChar}"]`);
         if (keyElement) {
             keyElement.classList.remove('active');
         }
@@ -271,9 +298,12 @@ class InputHandler {
      * Stop all currently playing notes
      */
     stopAllNotes() {
-        for (const midi of this.midiToKeyElement.keys()) {
-            this.deactivateKey(midi);
-        }
+        // Deactivate all active keys on screen
+        const activeKeys = document.querySelectorAll('.key.active');
+        activeKeys.forEach(key => {
+            key.classList.remove('active');
+        });
+
         this.audioEngine.stopAllNotes();
     }
 }

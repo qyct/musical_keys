@@ -1,16 +1,16 @@
 /**
- * Audio Engine for Qwertica Keys
+ * Audio Engine for Musical Keys
  * Handles Web Audio API initialization, sound synthesis, and polyphony
- * Uses triangle waveform only at full volume
+ * Uses triangle waveform with proper cleanup to prevent stuck notes
  */
 
 class AudioEngine {
     constructor() {
         this.audioContext = null;
         this.masterGain = null;
-        this.activeNotes = new Map(); // midi -> { osc, noteGain }
-        this.waveform = 'triangle'; // Fixed to triangle waveform
+        this.activeNotes = new Map(); // midi -> { osc, noteGain, startTime }
         this.isInitialized = false;
+        this.activeNoteCount = 0;
     }
 
     /**
@@ -52,44 +52,60 @@ class AudioEngine {
      * @param {number} velocity - Note velocity (0-1)
      */
     playNote(midi, velocity = 0.5) {
+        // Auto-initialize if not already done
         if (!this.isInitialized) {
-            console.warn('Audio engine not initialized');
+            console.warn('Audio engine not initialized, cannot play note');
             return;
         }
 
         // Don't play if note is already active
         if (this.activeNotes.has(midi)) {
+            console.log(`Note ${midi} already playing, skipping`);
             return;
         }
 
         const now = this.audioContext.currentTime;
         const frequency = this.midiToFrequency(midi);
 
-        // Create oscillator for the note (triangle waveform only)
-        const osc = this.audioContext.createOscillator();
-        osc.type = 'triangle';
-        osc.frequency.value = frequency;
+        try {
+            // Create oscillator for the note (triangle waveform)
+            const osc = this.audioContext.createOscillator();
+            osc.type = 'triangle';
+            osc.frequency.value = frequency;
 
-        // Create gain node for ADSR envelope
-        const noteGain = this.audioContext.createGain();
-        noteGain.gain.value = 0;
+            // Create gain node for ADSR envelope
+            const noteGain = this.audioContext.createGain();
+            noteGain.gain.value = 0;
 
-        // Connect: osc -> noteGain -> masterGain
-        osc.connect(noteGain);
-        noteGain.connect(this.masterGain);
+            // Connect: osc -> noteGain -> masterGain
+            osc.connect(noteGain);
+            noteGain.connect(this.masterGain);
 
-        // ADSR Envelope
-        // Attack: quick fade in
-        noteGain.gain.linearRampToValueAtTime(velocity, now + 0.01);
+            // ADSR Envelope
+            // Attack: quick fade in
+            noteGain.gain.setValueAtTime(0, now);
+            noteGain.gain.linearRampToValueAtTime(velocity, now + 0.01);
 
-        // Decay: slight drop to sustain level
-        noteGain.gain.exponentialRampToValueAtTime(velocity * 0.7, now + 0.3);
+            // Decay: slight drop to sustain level
+            noteGain.gain.exponentialRampToValueAtTime(velocity * 0.7, now + 0.3);
 
-        // Start the oscillator
-        osc.start(now);
+            // Start the oscillator
+            osc.start(now);
 
-        // Store the active note
-        this.activeNotes.set(midi, { osc, noteGain });
+            // Store the active note with timestamp for cleanup
+            this.activeNotes.set(midi, {
+                osc,
+                noteGain,
+                startTime: now
+            });
+
+            this.activeNoteCount++;
+            this.updateSpeakerIcon();
+
+            console.log(`Playing note ${midi} (${frequency.toFixed(2)}Hz), active: ${this.activeNoteCount}`);
+        } catch (error) {
+            console.error(`Error playing note ${midi}:`, error);
+        }
     }
 
     /**
@@ -103,37 +119,108 @@ class AudioEngine {
 
         const noteData = this.activeNotes.get(midi);
         if (!noteData) {
+            console.log(`Note ${midi} not playing, cannot stop`);
             return;
         }
 
         const { osc, noteGain } = noteData;
         const now = this.audioContext.currentTime;
 
-        // Release: fade out quickly
         try {
+            // Cancel any scheduled changes
             noteGain.gain.cancelScheduledValues(now);
-            noteGain.gain.setValueAtTime(noteGain.gain.value, now);
-            noteGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+            // Get current gain value to prevent clicking
+            const currentGain = noteGain.gain.value;
+            noteGain.gain.setValueAtTime(currentGain, now);
+
+            // Release: fade out quickly
+            noteGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
 
             // Stop oscillator after release
-            osc.stop(now + 0.35);
+            osc.stop(now + 0.15);
 
-            // Clean up the active notes map
+            // Clean up the active notes map after release
             setTimeout(() => {
-                this.activeNotes.delete(midi);
-            }, 400);
+                // Only disconnect if this note is still the same one (prevent re-use issues)
+                const currentNote = this.activeNotes.get(midi);
+                if (currentNote && currentNote.osc === osc) {
+                    try {
+                        osc.disconnect();
+                        noteGain.disconnect();
+                    } catch (e) {
+                        // Already disconnected, ignore
+                    }
+                    this.activeNotes.delete(midi);
+                    this.activeNoteCount--;
+                    this.updateSpeakerIcon();
+                    console.log(`Stopped note ${midi}, active: ${this.activeNoteCount}`);
+                }
+            }, 200);
         } catch (error) {
-            // If there's an error with scheduling, just clean up
+            console.error(`Error stopping note ${midi}:`, error);
+            // Force cleanup on error
             this.activeNotes.delete(midi);
+            this.activeNoteCount--;
+            this.updateSpeakerIcon();
         }
     }
 
     /**
-     * Stop all currently playing notes
+     * Stop all currently playing notes (emergency stop)
      */
     stopAllNotes() {
-        for (const midi of this.activeNotes.keys()) {
-            this.stopNote(midi);
+        if (!this.isInitialized) {
+            return;
+        }
+
+        console.log(`Emergency stop: stopping ${this.activeNotes.size} notes`);
+
+        const now = this.audioContext.currentTime;
+        const notesToStop = Array.from(this.activeNotes.entries());
+
+        notesToStop.forEach(([midi, noteData]) => {
+            const { osc, noteGain } = noteData;
+
+            try {
+                // Immediate stop with quick fade to prevent clicking
+                noteGain.gain.cancelScheduledValues(now);
+                noteGain.gain.setValueAtTime(noteGain.gain.value, now);
+                noteGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.stop(now + 0.1);
+
+                setTimeout(() => {
+                    try {
+                        osc.disconnect();
+                        noteGain.disconnect();
+                    } catch (e) {
+                        // Already disconnected
+                    }
+                }, 150);
+            } catch (error) {
+                console.error(`Error stopping note ${midi}:`, error);
+            }
+        });
+
+        // Clear all notes immediately
+        this.activeNotes.clear();
+        this.activeNoteCount = 0;
+        this.updateSpeakerIcon();
+
+        console.log('All notes stopped');
+    }
+
+    /**
+     * Update the speaker icon based on active notes
+     */
+    updateSpeakerIcon() {
+        const speakerIcon = document.getElementById('speakerIcon');
+        if (speakerIcon) {
+            if (this.activeNoteCount > 0) {
+                speakerIcon.classList.add('active');
+            } else {
+                speakerIcon.classList.remove('active');
+            }
         }
     }
 
@@ -158,6 +245,13 @@ class AudioEngine {
      */
     getState() {
         return this.audioContext ? this.audioContext.state : 'not initialized';
+    }
+
+    /**
+     * Get the number of currently playing notes
+     */
+    getActiveNoteCount() {
+        return this.activeNoteCount;
     }
 }
 

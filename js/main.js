@@ -1,19 +1,19 @@
 /**
- * Main Application Initialization for Qwertica Keys
+ * Main Application Initialization for Musical Keys
  * Wires up all modules and handles UI interactions
  */
 
 // Global state
 let isStarted = false;
+let isMenuOpen = false;
 
 /**
  * Initialize the application
  */
 async function initApp() {
-    console.log('Initializing Qwertica Keys...');
+    console.log('Initializing Musical Keys...');
 
-    // Initialize modules
-    await audioEngine.init();
+    // Create modules (but don't initialize audio yet - needs user gesture)
     inputHandler = new InputHandler(audioEngine);
     inputHandler.init();
     recordingSystem = new RecordingSystem(audioEngine);
@@ -24,12 +24,56 @@ async function initApp() {
     });
 
     // Wire up UI controls
+    setupMenuButton();
     setupRecordingControls();
 
-    // Auto-initialize audio on first keypress
+    // Auto-initialize audio on first interaction
     setupAutoInit();
 
-    console.log('Qwertica Keys initialized successfully');
+    // Emergency cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        if (audioEngine) {
+            audioEngine.stopAllNotes();
+        }
+    });
+
+    // Handle visibility change (pause when tab is hidden)
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            // Stop all notes when tab is hidden to prevent stuck notes
+            if (audioEngine && audioEngine.isReady()) {
+                audioEngine.stopAllNotes();
+            }
+        }
+    });
+
+    console.log('Musical Keys initialized successfully (audio will start on first interaction)');
+}
+
+/**
+ * Set up menu button toggle
+ */
+function setupMenuButton() {
+    const menuBtn = document.getElementById('menuBtn');
+    const menuDropdown = document.getElementById('menuDropdown');
+
+    menuBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        isMenuOpen = !isMenuOpen;
+        if (isMenuOpen) {
+            menuDropdown.classList.remove('hidden');
+        } else {
+            menuDropdown.classList.add('hidden');
+        }
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (event) => {
+        if (isMenuOpen && !menuDropdown.contains(event.target)) {
+            isMenuOpen = false;
+            menuDropdown.classList.add('hidden');
+        }
+    });
 }
 
 /**
@@ -143,43 +187,6 @@ function setupAutoInit() {
     document.addEventListener('touchstart', initAudio, { once: true });
 }
 
-/**
- * Handle cleanup on page unload
- */
-function cleanup() {
-    if (audioEngine) {
-        audioEngine.stopAllNotes();
-    }
-    if (inputHandler) {
-        inputHandler.stopAllNotes();
-    }
-    if (recordingSystem) {
-        recordingSystem.stopPlayback();
-    }
-    console.log('Cleaned up resources');
-}
-
-// Set up cleanup on page unload
-window.addEventListener('beforeunload', cleanup);
-
-// Handle visibility change (pause when tab is hidden)
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        // Pause/resume audio context as needed
-        if (audioEngine && audioEngine.audioContext) {
-            if (audioEngine.audioContext.state === 'running') {
-                audioEngine.audioContext.suspend();
-            }
-        }
-    } else {
-        if (audioEngine && audioEngine.audioContext) {
-            if (audioEngine.audioContext.state === 'suspended') {
-                audioEngine.audioContext.resume();
-            }
-        }
-    }
-});
-
 // Initialize app when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
@@ -189,7 +196,7 @@ if (document.readyState === 'loading') {
 
 // Export for debugging (optional)
 if (typeof window !== 'undefined') {
-    window.QwerticaKeys = {
+    window.MusicalKeys = {
         audioEngine,
         inputHandler,
         recordingSystem

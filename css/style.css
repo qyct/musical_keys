@@ -1,6 +1,7 @@
 /**
- * Qwertica Keys Styles
- * Single-page application, no scrollbar, responsive design
+ * Musical Keys Styles
+ * Viewport-based scaling for consistent appearance across all screen sizes
+ * Similar to GLSL shader coordinate systems
  */
 
 /* CSS Reset and Base Styles */
@@ -19,103 +20,137 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     color: #eee;
-}
-
-.container {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    max-width: 1400px;
-    margin: 0 auto;
+    position: relative;
 }
 
 /* App Header */
 .app-header {
-    text-align: center;
-    padding: 10px 0;
-    flex-shrink: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(26, 26, 46, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
 }
 
-.app-header h1 {
-    font-size: 2rem;
+.app-title {
+    font-size: 1.5rem;
     background: linear-gradient(45deg, #00d4ff, #7b2cbf);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    font-weight: bold;
+    margin: 0;
 }
 
-/* Start Overlay (for mobile AudioContext initialization) */
-.start-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    transition: opacity 0.3s ease;
+/* Speaker icon - centered */
+.speaker-icon {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #aaa;
+    font-size: 3rem;
+    transition: all 0.2s ease;
 }
 
-.start-overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
+.speaker-icon.active {
+    color: #00d4ff;
+    animation: pulse-speaker 0.5s ease-in-out infinite alternate;
 }
 
-.start-btn {
-    padding: 20px 40px;
-    font-size: 1.5rem;
+@keyframes pulse-speaker {
+    from {
+        transform: translateX(-50%) scale(1);
+        filter: drop-shadow(0 0 5px rgba(0, 212, 255, 0.5));
+    }
+    to {
+        transform: translateX(-50%) scale(1.1);
+        filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.8));
+    }
+}
+
+/* Menu Button (in header) */
+.menu-btn {
+    position: absolute;
+    right: 20px;
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
     background: linear-gradient(45deg, #00d4ff, #7b2cbf);
     border: none;
-    border-radius: 10px;
+    border-radius: 50%;
     color: white;
     cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-.start-btn:hover {
-    transform: scale(1.05);
-}
-
-/* Top Controls - Recording */
-.controls-top {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 10px;
-    padding: 10px 0;
+    justify-content: center;
     flex-shrink: 0;
 }
 
-.recording-buttons {
+.menu-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+}
+
+/* Menu Dropdown */
+.menu-dropdown {
+    position: fixed;
+    top: 70px;
+    right: 15px;
+    background: #2a2a2a;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    min-width: 200px;
+    transition: all 0.3s ease;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.menu-content {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     gap: 10px;
-    flex-wrap: wrap;
 }
 
-.recording-buttons button,
-.recording-buttons label {
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: 500;
+.menu-content button,
+.menu-content label {
+    width: 100%;
 }
 
-.recording-status {
+/* Container - viewport-based layout */
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 70px 2vw 2vh 2vw;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Recording status in menu */
+.menu-dropdown .recording-status {
     min-height: 20px;
     color: #aaa;
     font-size: 0.85rem;
     text-align: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #444;
 }
 
-.recording-status.recording {
+.menu-dropdown .recording-status.recording {
     color: #e63946;
     font-weight: 500;
 }
@@ -125,33 +160,36 @@ button:disabled {
     cursor: not-allowed;
 }
 
-/* Keys Wrapper */
+/* Keys Wrapper - maintains aspect ratio */
 .piano-wrapper {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    padding: 10px 0;
+    padding: 1vh 0;
 }
 
-/* Keys Container */
+/* Keys Container - scales with viewport */
 .piano {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 1.2vh;
     background: #2a2a2a;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    padding: 3vh;
+    border-radius: 2.25vh;
+    box-shadow: 0 1.5vh 6vh rgba(0, 0, 0, 0.5);
+    max-width: 100%;
+    max-height: 100%;
 }
 
 /* Keyboard Rows */
 .key-row {
     display: flex;
-    gap: 6px;
+    gap: 0.6vw;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 /* Row positioning to match QWERTY layout */
@@ -160,27 +198,160 @@ button:disabled {
 }
 
 .key-row:nth-child(2) {
-    padding-left: 20px;
+    padding-left: 1vw;
 }
 
 .key-row:nth-child(3) {
-    padding-left: 40px;
+    padding-left: 2vw;
 }
 
-/* Keys */
+.key-row:nth-child(4) {
+    padding-left: 2.5vw;
+}
+
+.key-row:nth-child(5) {
+    padding-left: 3vw;
+}
+
+/* Outer edge keys - width calculated to make all rows uniform (target: 77.8vw) */
+
+/* Row 1: 13 keys total, outer keys need to be 7.8vw each */
+.key-row:nth-child(1) .key.wide-left,
+.key-row:nth-child(1) .key.wide-right {
+    width: 7.8vw;
+    min-width: 62px;
+    max-width: 140px;
+}
+
+/* Row 2: 14 keys total, outer keys need to be 6.9vw each */
+.key-row:nth-child(2) .key.wide-left,
+.key-row:nth-child(2) .key.wide-right {
+    width: 6.9vw;
+    min-width: 55px;
+    max-width: 124px;
+}
+
+/* Row 3: 12 keys total, outer keys need to be 8.6vw each */
+.key-row:nth-child(3) .key.wide-left,
+.key-row:nth-child(3) .key.wide-right {
+    width: 8.6vw;
+    min-width: 69px;
+    max-width: 155px;
+}
+
+/* Row 4: 12 keys total, outer keys need to be 8.6vw each */
+.key-row:nth-child(4) .key.wide-left,
+.key-row:nth-child(4) .key.wide-right {
+    width: 8.6vw;
+    min-width: 69px;
+    max-width: 155px;
+}
+
+/* Row 5: Ctrl keys need to be 10.4vw each (spacebar fills remaining) */
+.key-row:nth-child(5) .key.wide-left,
+.key-row:nth-child(5) .key.wide-right {
+    width: 10.4vw;
+    min-width: 83px;
+    max-width: 187px;
+}
+
+/* Keys - viewport-based sizing with 1.5x vertical scaling */
 .key {
-    width: 50px;
-    height: 50px;
+    width: 5vw;
+    height: 7.5vh;
+    min-width: 40px;
+    min-height: 60px;
+    max-width: 90px;
+    max-height: 135px;
     background: linear-gradient(to bottom, #f0f0f0 0%, #d0d0d0 100%);
     border: 1px solid #999;
-    border-radius: 6px;
+    border-radius: 1.2vh;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     transition: all 0.05s ease;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0.6vh 1.2vh rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
     position: relative;
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Outer edge keys - wider to form vertical lines */
+.key.wide-left,
+.key.wide-right {
+    width: 7vw;
+    min-width: 56px;
+    max-width: 126px;
+}
+
+/* Remove margins from wide keys so they align to edges */
+.key.wide-left {
+    margin-left: 0 !important;
+}
+
+.key.wide-right {
+    margin-right: 0 !important;
+}
+
+/* Inactive (greyed out) keys */
+.key.inactive {
+    background: linear-gradient(to bottom, #808080 0%, #606060 100%);
+    border-color: #555;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.key.inactive .key-label {
+    color: #555;
+    text-shadow: none;
+}
+
+/* Spacebar */
+.key.spacebar {
+    flex: 1;
+    min-width: 20vw;
+    max-width: 40vw;
+    background: linear-gradient(to bottom, #e0e0e0 0%, #c0c0c0 100%);
+}
+
+.key.spacebar .musical {
+    font-size: clamp(14px, 1.6vw, 28px);
+    color: #333;
+    font-weight: bold;
+    letter-spacing: 0.1vw;
+}
+
+/* Spacer keys for layout */
+.key.space-left {
+    margin-left: 1vw;
+}
+
+.key.space-left-wide {
+    margin-left: 1.5vw;
+    width: 6vw;
+}
+
+.key.space-left-small {
+    margin-left: 0.5vw;
+    width: 4vw;
+}
+
+.key.space-right {
+    margin-right: 1vw;
+}
+
+.key.space-right-wide {
+    margin-right: 1.5vw;
+    width: 6vw;
+}
+
+.key.space-right-small {
+    margin-right: 0.5vw;
+    width: 4vw;
 }
 
 .key:hover {
@@ -188,14 +359,19 @@ button:disabled {
 }
 
 .key.active {
-    background: linear-gradient(to bottom, #00d4ff 0%, #0099cc 100%);
-    transform: translateY(2px);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(to bottom, #00d4ff 0%, #0099cc 100%) !important;
+    transform: translateY(0.3vh);
+    box-shadow: 0 0.15vh 0.45vh rgba(0, 0, 0, 0.3);
+}
+
+.key.active .key-label {
+    color: #fff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* Key Labels */
 .key-label {
-    font-size: 16px;
+    font-size: clamp(12px, 1.4vw, 28px);
     font-weight: bold;
     color: #333;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
@@ -270,75 +446,89 @@ button:disabled {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .app-header h1 {
-        font-size: 1.5rem;
+    .app-header {
+        padding: 0 10px;
     }
 
-    .recording-buttons button,
-    .recording-buttons label {
-        padding: 6px 12px;
-        font-size: 0.8rem;
+    .app-title {
+        font-size: 1.2rem;
     }
 
-    .piano {
+    .menu-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .menu-dropdown {
+        top: 60px;
+        right: 10px;
         padding: 15px;
-        gap: 6px;
+        min-width: 180px;
     }
 
-    .key-row {
-        gap: 4px;
-    }
-
-    .key-row:nth-child(2) {
-        padding-left: 10px;
-    }
-
-    .key-row:nth-child(3) {
-        padding-left: 20px;
+    .container {
+        padding: 65px 1.5vw 1.5vh 1.5vw;
     }
 
     .key {
-        width: 35px;
-        height: 40px;
+        width: 5.5vw;
+        height: 6.75vh;
+        min-height: 54px;
     }
 
     .key-label {
-        font-size: 12px;
+        font-size: clamp(10px, 1.2vw, 18px);
+    }
+
+    .key.spacebar .musical {
+        font-size: clamp(12px, 1.3vw, 24px);
     }
 }
 
 @media (max-width: 480px) {
-    .container {
-        padding: 5px;
+    .app-title {
+        font-size: 1rem;
     }
 
-    .app-header h1 {
-        font-size: 1.2rem;
+    .menu-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+
+    .menu-dropdown {
+        top: 55px;
+        right: 5px;
+        padding: 10px;
+        min-width: 160px;
+    }
+
+    .container {
+        padding: 60px 1vw 1vh 1vw;
     }
 
     .piano {
-        padding: 10px;
-        gap: 4px;
+        gap: 0.75vh;
+        padding: 2.25vh;
     }
 
     .key-row {
-        gap: 2px;
-    }
-
-    .key-row:nth-child(2) {
-        padding-left: 5px;
-    }
-
-    .key-row:nth-child(3) {
-        padding-left: 10px;
+        gap: 0.4vw;
     }
 
     .key {
-        width: 28px;
-        height: 35px;
+        width: 6vw;
+        height: 6vh;
+        min-width: 30px;
+        min-height: 45px;
     }
 
     .key-label {
-        font-size: 10px;
+        font-size: clamp(8px, 1vw, 14px);
+    }
+
+    .key.spacebar .musical {
+        font-size: clamp(10px, 1.1vw, 20px);
     }
 }
