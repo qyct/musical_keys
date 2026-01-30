@@ -188,71 +188,27 @@ button:disabled {
 .key-row {
     display: flex;
     gap: 0.6vw;
-    justify-content: center;
-    flex-shrink: 0;
 }
 
-/* Row positioning to match QWERTY layout */
+/* Row positioning to center Q, A, Z keys */
 .key-row:nth-child(1) {
-    padding-left: 0;
+    margin-left: 28vw;
 }
 
 .key-row:nth-child(2) {
-    padding-left: 1vw;
+    margin-left: 27vw;
 }
 
 .key-row:nth-child(3) {
-    padding-left: 2vw;
+    margin-left: 26.5vw;
 }
 
 .key-row:nth-child(4) {
-    padding-left: 2.5vw;
+    margin-left: 26.5vw;
 }
 
 .key-row:nth-child(5) {
-    padding-left: 3vw;
-}
-
-/* Outer edge keys - width calculated to make all rows uniform (target: 77.8vw) */
-
-/* Row 1: 13 keys total, outer keys need to be 7.8vw each */
-.key-row:nth-child(1) .key.wide-left,
-.key-row:nth-child(1) .key.wide-right {
-    width: 7.8vw;
-    min-width: 62px;
-    max-width: 140px;
-}
-
-/* Row 2: 14 keys total, outer keys need to be 6.9vw each */
-.key-row:nth-child(2) .key.wide-left,
-.key-row:nth-child(2) .key.wide-right {
-    width: 6.9vw;
-    min-width: 55px;
-    max-width: 124px;
-}
-
-/* Row 3: 12 keys total, outer keys need to be 8.6vw each */
-.key-row:nth-child(3) .key.wide-left,
-.key-row:nth-child(3) .key.wide-right {
-    width: 8.6vw;
-    min-width: 69px;
-    max-width: 155px;
-}
-
-/* Row 4: 12 keys total, outer keys need to be 8.6vw each */
-.key-row:nth-child(4) .key.wide-left,
-.key-row:nth-child(4) .key.wide-right {
-    width: 8.6vw;
-    min-width: 69px;
-    max-width: 155px;
-}
-
-/* Row 5: Ctrl keys need to be 10.4vw each (spacebar fills remaining) */
-.key-row:nth-child(5) .key.wide-left,
-.key-row:nth-child(5) .key.wide-right {
-    width: 10.4vw;
-    min-width: 83px;
-    max-width: 187px;
+    margin-left: 28vw;
 }
 
 /* Keys - viewport-based sizing with 1.5x vertical scaling */
@@ -288,13 +244,46 @@ button:disabled {
     max-width: 126px;
 }
 
-/* Remove margins from wide keys so they align to edges */
-.key.wide-left {
-    margin-left: 0 !important;
+/* Outer edge keys - width calculated to make all rows uniform (target: 67.8vw) */
+
+/* Row 1: 13 keys = 2*W + 11*5 + 12*0.6 = 2W + 62.2, need W = 2.8vw */
+.key-row:nth-child(1) .key.wide-left,
+.key-row:nth-child(1) .key.wide-right {
+    width: 2.8vw;
+    min-width: 22px;
+    max-width: 50px;
 }
 
-.key.wide-right {
-    margin-right: 0 !important;
+/* Row 2: 14 keys = 2*W + 12*5 + 13*0.6 = 2W + 67.8, need W = 0vw (regular width) */
+.key-row:nth-child(2) .key.wide-left,
+.key-row:nth-child(2) .key.wide-right {
+    width: 5vw;
+    min-width: 40px;
+    max-width: 90px;
+}
+
+/* Row 3: 12 keys = 2*W + 10*5 + 11*0.6 = 2W + 56.6, need W = 5.6vw */
+.key-row:nth-child(3) .key.wide-left,
+.key-row:nth-child(3) .key.wide-right {
+    width: 5.6vw;
+    min-width: 45px;
+    max-width: 101px;
+}
+
+/* Row 4: 12 keys = 2*W + 10*5 + 11*0.6 = 2W + 56.6, need W = 5.6vw */
+.key-row:nth-child(4) .key.wide-left,
+.key-row:nth-child(4) .key.wide-right {
+    width: 5.6vw;
+    min-width: 45px;
+    max-width: 101px;
+}
+
+/* Row 5: 8 keys = 2*W + 5*5 + 6*0.6 + spacebar, spacebar ~37.4vw, need W = 5.9vw */
+.key-row:nth-child(5) .key.wide-left,
+.key-row:nth-child(5) .key.wide-right {
+    width: 5.9vw;
+    min-width: 47px;
+    max-width: 106px;
 }
 
 /* Inactive (greyed out) keys */
@@ -323,35 +312,6 @@ button:disabled {
     color: #333;
     font-weight: bold;
     letter-spacing: 0.1vw;
-}
-
-/* Spacer keys for layout */
-.key.space-left {
-    margin-left: 1vw;
-}
-
-.key.space-left-wide {
-    margin-left: 1.5vw;
-    width: 6vw;
-}
-
-.key.space-left-small {
-    margin-left: 0.5vw;
-    width: 4vw;
-}
-
-.key.space-right {
-    margin-right: 1vw;
-}
-
-.key.space-right-wide {
-    margin-right: 1.5vw;
-    width: 6vw;
-}
-
-.key.space-right-small {
-    margin-right: 0.5vw;
-    width: 4vw;
 }
 
 .key:hover {
